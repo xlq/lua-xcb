@@ -6,6 +6,11 @@
 #include "stdbool.h"
 #include "xcb/xcb.h"
 
+#if LUA_VERSION_NUM < 502
+#define lua_rawlen(L, n) lua_objlen((L), (n))
+#define luaL_setfuncs(L, l, nup) luaL_register((L), NULL, (l)) /* WARNING: nup is ignored! */
+#endif
+
 /* Registry field for connection object methods.
    Submodules add their methods to this table. */
 #define LUA_XCB_CONN_METHODS "methods of xcb_connection_t *"

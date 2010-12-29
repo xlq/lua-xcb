@@ -1,6 +1,7 @@
 local lxp_table = require "lxp_table"
 local iters = require "charon.iters"  -- https://github.com/xlq/charon/blob/master/iters.lua
 local repr = require "charon.repr"    -- https://github.com/xlq/charon/blob/master/repr.lua
+local unpack = table.unpack or unpack
 
 -- Memoise a unary function
 function memoise(f)
@@ -865,7 +866,7 @@ if #argv ~= 3 then
     os.exit(1)
 end
 
-input_xml, output_c, output_h = table.unpack(argv)
+input_xml, output_c, output_h = unpack(argv)
 c = new_output(io.open(output_c, "w"))
 h = new_output(io.open(output_h, "w"))
 
