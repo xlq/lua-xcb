@@ -276,20 +276,25 @@ static int conn_get_event(lua_State *L, xcb_generic_event_t *(* f)(xcb_connectio
     *pe = event;
     if (!event){
         lua_pushnil(L);
-        lua_pushfstring(L, "%s failed.", f_name);
-        return 2;
+        if (f == xcb_poll_for_event){
+            /* It is quite normal for xcb_poll_for_event to return NULL. */
+            return 1;
+        } else {
+            lua_pushfstring(L, "%s failed.", f_name);
+            return 2;
+        }
     }
     return push_event(L, event);
 }
 
 static int conn_wait_for_event(lua_State *L)
 {
-    return conn_get_event(L, &xcb_wait_for_event, "xcb_wait_for_event");
+    return conn_get_event(L, xcb_wait_for_event, "xcb_wait_for_event");
 }
 
 static int conn_poll_for_event(lua_State *L)
 {
-    return conn_get_event(L, &xcb_poll_for_event, "xcb_poll_for_event");
+    return conn_get_event(L, xcb_poll_for_event, "xcb_poll_for_event");
 }
     
 
@@ -308,7 +313,8 @@ static int connect(lua_State *L)
         lua_pushliteral(L, "xcb_connect failed (XCB provides no further information)");
         return 2;
     }
-    return 1;
+    lua_pushinteger(L, screenp);
+    return 2;
 }
 
 static int conn_generate_id(lua_State *L)
