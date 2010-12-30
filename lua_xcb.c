@@ -220,6 +220,13 @@ static int conn_tostring(lua_State *L)
     return 1;
 }
 
+static int conn_is_valid(lua_State *L)
+{
+    lua_pushboolean(L, 
+      *(xcb_connection_t **) luaL_checkudata(L, 1, LUA_XCB_CONN_MT) != NULL);
+    return 1;
+}
+
 static int conn_gc(lua_State *L)
 {
     xcb_connection_t **pp = luaL_checkudata(L, 1, LUA_XCB_CONN_MT);
@@ -357,6 +364,7 @@ static void constant(lua_State *L, const char *name, long val)
    These are also available through connection objects. */
 static const luaL_Reg conn_functions[] = {
     {"response_type", response_type},
+    {"is_valid", conn_is_valid},
     {"disconnect", conn_gc},
     {"flush", conn_flush},
     {"get_file_descriptor", conn_get_file_descriptor},
@@ -416,13 +424,11 @@ LUALIB_API int luaopen_xcb(lua_State *L)
 
     /* Create metatable for cookies. */
     luaL_newmetatable(L, LUA_XCB_COOKIE_MT);
-    /* Point metatable at itself, so that the metatable can contain
-       the methods. */
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
     protect_metatable(L);
     luaL_setfuncs(L, cookie_methods, 0);
-    lua_pop(L, 1);
+    /* Point metatable at itself, so that the metatable can contain
+       the methods. And pop the metatable */
+    lua_setfield(L, -1, "__index");
 
     /* Create event table. */
     luaL_newmetatable(L, LUA_XCB_EVENT_TABLE);
