@@ -8,7 +8,7 @@ HEADERS = lua_xcb.h lua_xcb_xproto.h
 
 .PHONY: all
 
-all: xcb.so
+all: xcb.so keysymdef.lua
 
 xcb.so: lua_xcb.o lua_xcb_xproto.o
 	$(C99) $(LDFLAGS) -o xcb.so lua_xcb.o lua_xcb_xproto.o $(LIBS)
@@ -19,7 +19,10 @@ xcb.so: lua_xcb.o lua_xcb_xproto.o
 lua_xcb_xproto.c lua_xcb_xproto.h: gen_bind.lua $(XMLDIR)/xproto.xml
 	$(LUA) gen_bind.lua $(XMLDIR)/xproto.xml lua_xcb_xproto.c lua_xcb_xproto.h || { $(RM) lua_xcb_xproto.c; exit 1; }
 
+keysymdef.lua: gen_keysymdef.lua
+	$(LUA) gen_keysymdef.lua > keysymdef.lua
+
 .PHONY: clean
 
 clean:
-	$(RM) xcb.so lua_xcb.o lua_xcb_xproto.o lua_xcb_xproto.c lua_xcb_xproto.h
+	$(RM) xcb.so lua_xcb.o lua_xcb_xproto.o lua_xcb_xproto.c lua_xcb_xproto.h keysymdef.lua
